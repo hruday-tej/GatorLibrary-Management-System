@@ -1,1 +1,3 @@
 *.class
+.cph/
+.DS_Store
