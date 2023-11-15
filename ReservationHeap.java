@@ -1,12 +1,9 @@
-// package GatorLibrary;
-// import GatorLibrary.ReservationHeapNode;
-
 public class ReservationHeap {
     // Class to implement Min Heap from scratch instead of using Priority Queue library
     
-    private ReservationHeapNode[] heapArray;
-    private int size;
-    private int maximumCapacity;
+    public ReservationHeapNode[] heapArray;
+    public int size;
+    public int maximumCapacity;
 
     public ReservationHeap(int maximumCapacity){
         this.maximumCapacity = maximumCapacity;
@@ -94,7 +91,4 @@ public class ReservationHeap {
         topDownHeapify();
         return minElement;
     }
-
-
-
 }

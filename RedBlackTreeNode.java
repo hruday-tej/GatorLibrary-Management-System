@@ -1,11 +1,15 @@
-// package GatorLibrary;
+import org.w3c.dom.Node;
 
-public class RedBlackTreeNode{
-    int bookId;
-    String bookName;
-    String authorName;
-    boolean availabilityStatus;
-    int borrowedBy;
-    ReservationHeap reservationHeap;    
-    
+public class RedBlackTreeNode {
+
+    Book book;
+    RedBlackTreeNode left;
+    RedBlackTreeNode right;
+    RedBlackTreeNode parent;
+
+    boolean color;
+    public RedBlackTreeNode(Book book) {
+        this.book = book;
+    }
+
 }
