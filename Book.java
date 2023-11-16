@@ -15,13 +15,13 @@ public class Book {
         this.authorName = authorName;
         this.availabilityStatus = availabilityStatus;
         // this.borrowedBy = borrowedBy;
-        reservationHeap = new ReservationHeap(100000001);
+        reservationHeap = new ReservationHeap(1000001);
     }
 
     public ArrayList<Integer> getCurrentReservations(){
         if(reservationHeap.heapArray.length == 0)return new ArrayList<Integer>();
         ArrayList<Integer> reservedPatrons = new ArrayList<Integer>();
-        for(int i=0;i<reservationHeap.heapArray.length;i++){
+        for(int i=0;i<reservationHeap.size;i++){
             if(reservationHeap.heapArray[i] != null)
             reservedPatrons.add(reservationHeap.heapArray[i].patronId);
         }
