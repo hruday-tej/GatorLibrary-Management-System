@@ -26,8 +26,7 @@ public class ReservationHeap {
                 swap(idx, parentIdx);
                 idx = parentIdx;
             } else if (heapArray[idx].priorityNumber == heapArray[parentIdx].priorityNumber) {
-                if (heapArray[idx].timeOfReservation.isBefore(heapArray[parentIdx].timeOfReservation) ||
-                    heapArray[idx].timeOfReservation.equals(heapArray[parentIdx].timeOfReservation)) {
+                if (heapArray[idx].timeOfReservation.isBefore(heapArray[parentIdx].timeOfReservation)) {
                     swap(idx, parentIdx);
                     idx = parentIdx;
                 } else {

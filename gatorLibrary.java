@@ -15,7 +15,7 @@ class gatorLibrary {
         System.out.println("BookID = " + foundBook.bookId);
         System.out.println("Title = " + foundBook.bookName);
         System.out.println("Author = " + foundBook.authorName);
-        System.out.printf("Availability = %s\n", foundBook.availabilityStatus);
+        System.out.println("Availability = " + foundBook.availabilityStatus);
         String borrowed = foundBook.borrowedBy == 0 ? "None" : String.valueOf(foundBook.borrowedBy);
         System.out.println("BorrowedBy = " + borrowed);
         System.out.println("Reservations = " + foundBook.getCurrentReservations().toString());
@@ -126,6 +126,7 @@ class gatorLibrary {
                         " is no longer available. Reservations made by Patrons "
                         + bookToBeDeleted.book.getCurrentReservations().toString().replace("[", "").replace("]", "")
                         + " have been cancelled !!");
+                System.out.println();
                 break;
 
             default:

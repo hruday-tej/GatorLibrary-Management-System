@@ -1,6 +1,6 @@
 import java.util.ArrayList;
-class NilNode extends RedBlackTreeNode {
-  public NilNode() {
+class LeafNode extends RedBlackTreeNode {
+  public LeafNode() {
     super(null);
     this.color = true;
   }
@@ -283,7 +283,7 @@ public class RedBlackTree {
       fixRedBlackPropertiesAfterDelete(movedUpNode);
 
       // Remove the temporary NIL node
-      if (movedUpNode.getClass() == NilNode.class) {
+      if (movedUpNode.getClass() == LeafNode.class) {
         replaceParentsChild(movedUpNode.parent, movedUpNode, null);
       }
     }
@@ -307,7 +307,7 @@ public class RedBlackTree {
     // * node is black --> replace it by a temporary NIL node (needed to fix the R-B
     // rules)
     else {
-      RedBlackTreeNode newChild = node.color == BLACK ? new NilNode() : null;
+      RedBlackTreeNode newChild = node.color == BLACK ? new LeafNode() : null;
       replaceParentsChild(node.parent, node, newChild);
       return newChild;
     }

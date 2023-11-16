@@ -21,7 +21,7 @@ public class Book {
     public ArrayList<Integer> getCurrentReservations(){
         if(reservationHeap.heapArray.length == 0)return new ArrayList<Integer>();
         ArrayList<Integer> reservedPatrons = new ArrayList<Integer>();
-        for(int i=0;i<reservationHeap.heapArray.length;i++){
+        for(int i=0;i<reservationHeap.size;i++){
             if(reservationHeap.heapArray[i] != null)
             reservedPatrons.add(reservationHeap.heapArray[i].patronId);
         }
@@ -30,7 +30,6 @@ public class Book {
     }
 
     public void addPatronToWaitList(ReservationHeapNode patronNode){
-        // System.out.println("Stuck here --> " + patronNode.patronId);
         reservationHeap.insert(patronNode);
     }
 }
