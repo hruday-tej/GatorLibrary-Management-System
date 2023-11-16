@@ -17,24 +17,28 @@ public class ReservationHeap {
         heapArray[j] = temp;
     }
 
-    public void bottomUpHeapify(){
-        int idx = size-1;
+    public void bottomUpHeapify() {
+        int idx = size - 1;
         while (idx > 0) {
             int parentIdx = (idx - 1) / 2;
+    
             if (heapArray[idx].priorityNumber < heapArray[parentIdx].priorityNumber) {
                 swap(idx, parentIdx);
                 idx = parentIdx;
-            } else if(heapArray[idx].priorityNumber == heapArray[parentIdx].priorityNumber){
-                // break;
-                if(heapArray[idx].timeOfReservation == heapArray[parentIdx].timeOfReservation){
+            } else if (heapArray[idx].priorityNumber == heapArray[parentIdx].priorityNumber) {
+                if (heapArray[idx].timeOfReservation.isBefore(heapArray[parentIdx].timeOfReservation) ||
+                    heapArray[idx].timeOfReservation.equals(heapArray[parentIdx].timeOfReservation)) {
                     swap(idx, parentIdx);
                     idx = parentIdx;
+                } else {
+                    break;
                 }
-            }else{
+            } else {
                 break;
             }
         }
     }
+    
 
     private void topDownHeapify() {
         int idx = 0;
@@ -81,7 +85,6 @@ public class ReservationHeap {
 
     public ReservationHeapNode removeMin(){
         if(size == 0){
-            System.out.println("heap empty");
             return new ReservationHeapNode(null, -1, -1);
         }
 

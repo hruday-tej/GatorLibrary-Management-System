@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 class gatorLibrary {
     RedBlackTree libraryTree;
@@ -10,14 +11,14 @@ class gatorLibrary {
         this.libraryTree = new RedBlackTree();
     }
 
-    public void printBookInfo(RedBlackTreeNode foundBook) {
-        System.out.println("Book ID = " + foundBook.book.bookId);
-        System.out.println("Title = " + foundBook.book.bookName);
-        System.out.println("Author = " + foundBook.book.authorName);
-        System.out.printf("Availability = %s\n", foundBook.book.availabilityStatus);
-        String borrowed = foundBook.book.borrowedBy == 0 ? "None" : String.valueOf(foundBook.book.borrowedBy);
-        System.out.println("Borrowed by = " + borrowed);
-        System.out.println("Reservations = " + foundBook.book.getCurrentReservations().toString());
+    public void printBookInfo(Book foundBook) {
+        System.out.println("BookID = " + foundBook.bookId);
+        System.out.println("Title = " + foundBook.bookName);
+        System.out.println("Author = " + foundBook.authorName);
+        System.out.printf("Availability = %s\n", foundBook.availabilityStatus);
+        String borrowed = foundBook.borrowedBy == 0 ? "None" : String.valueOf(foundBook.borrowedBy);
+        System.out.println("BorrowedBy = " + borrowed);
+        System.out.println("Reservations = " + foundBook.getCurrentReservations().toString());
         System.out.println();
     }
 
@@ -27,7 +28,7 @@ class gatorLibrary {
                 int printBookId = Integer.parseInt(parameters[0]);
                 RedBlackTreeNode foundBook = libraryTree.searchBook(printBookId);
                 if (foundBook != null) {
-                    printBookInfo(foundBook);
+                    printBookInfo(foundBook.book);
                 } else {
                     System.out.println("Book Not found");
                 }
@@ -36,10 +37,10 @@ class gatorLibrary {
                 int lowBookRange = Integer.parseInt(parameters[0]);
                 int highBookRange = Integer.parseInt(parameters[1]);
 
-                for(int i=lowBookRange; i<= highBookRange;i++){
+                for (int i = lowBookRange; i <= highBookRange; i++) {
                     RedBlackTreeNode availableBook = libraryTree.searchBook(i);
-                    if(availableBook != null){
-                        printBookInfo(availableBook);
+                    if (availableBook != null) {
+                        printBookInfo(availableBook.book);
                     }
                 }
                 break;
@@ -78,21 +79,55 @@ class gatorLibrary {
                 int returnBookId = Integer.parseInt(parameters[1]);
 
                 RedBlackTreeNode returnBook = libraryTree.searchBook(returnBookId);
-                if(returnBook.book.borrowedBy == returnPatronId){
-                        System.out.println("Book " + returnBookId + " Returned by Patron " + returnPatronId);
-                        System.out.println();
+                if (returnBook.book.borrowedBy == returnPatronId) {
+                    System.out.println("Book " + returnBookId + " Returned by Patron " + returnPatronId);
+                    System.out.println();
                     ReservationHeapNode nextReserved = returnBook.book.reservationHeap.removeMin();
-
-                    if(nextReserved != null){
+                    if (nextReserved.patronId != -1) {
                         returnBook.book.borrowedBy = nextReserved.patronId;
                         System.out.println("Book " + returnBookId + " Allotted to Patron " + nextReserved.patronId);
                         System.out.println();
                     }
+                } else {
+                    System.out.println("something is fishy");
                 }
-            
+                break;
+
             case "Quit":
                 System.out.println("Program Terminated!!");
                 System.exit(0);
+
+            case "FindClosestBook":
+                int closestTargetBookId = Integer.parseInt(parameters[0]);
+                ArrayList<Book> closestBooks = libraryTree.closestBook(closestTargetBookId);
+                if (Math.abs(closestBooks.get(0).bookId - closestTargetBookId) < Math
+                        .abs(closestBooks.get(1).bookId - closestTargetBookId)) {
+                    printBookInfo(closestBooks.get(0));
+                } else if (Math.abs(closestBooks.get(0).bookId - closestTargetBookId) > Math
+                        .abs(closestBooks.get(1).bookId - closestTargetBookId)) {
+                    printBookInfo(closestBooks.get(1));
+                } else {
+                    if (closestBooks.get(0).bookId != closestBooks.get(1).bookId) {
+                        printBookInfo(closestBooks.get(1));
+                        printBookInfo(closestBooks.get(0));
+                    } else {
+                        printBookInfo(closestBooks.get(0));
+                    }
+
+                }
+
+                break;
+
+            case "DeleteBook":
+                int deletionBookID = Integer.parseInt(parameters[0]);
+                RedBlackTreeNode bookToBeDeleted = libraryTree.searchBook(deletionBookID);
+                libraryTree.deleteNode(deletionBookID);
+                System.out.println("Book " + deletionBookID +
+                        " is no longer available. Reservations made by Patrons "
+                        + bookToBeDeleted.book.getCurrentReservations().toString().replace("[", "").replace("]", "")
+                        + " have been cancelled !!");
+                break;
+
             default:
                 break;
         }
@@ -109,7 +144,8 @@ class gatorLibrary {
             }
 
             String[] methodInvocation = sb.toString().split("\n");
-            // System.out.println(methodInvocation[0]);
+
+            System.out.println(methodInvocation.length);
             for (int i = 0; i < methodInvocation.length; i++) {
                 String method = methodInvocation[i];
                 String methodName = method.substring(0, method.indexOf("("));
@@ -118,8 +154,11 @@ class gatorLibrary {
                 String[] parameters = parametersString.split(", ");
 
                 gatorLibrary gn = new gatorLibrary();
-
+                // System.out.println("line number - > " + (i+1));
+                // System.out.println("Performing --> " + methodInvocation[i]);
+                // System.out.println();
                 gn.callAppropriateMethod(methodName, parameters);
+                // System.out.println("doneeeee");
             }
             // System.out.println(methodInvocation);
 

@@ -15,7 +15,7 @@ public class Book {
         this.authorName = authorName;
         this.availabilityStatus = availabilityStatus;
         // this.borrowedBy = borrowedBy;
-        reservationHeap = new ReservationHeap(100000001);
+        reservationHeap = new ReservationHeap(1000001);
     }
 
     public ArrayList<Integer> getCurrentReservations(){
@@ -30,6 +30,7 @@ public class Book {
     }
 
     public void addPatronToWaitList(ReservationHeapNode patronNode){
+        // System.out.println("Stuck here --> " + patronNode.patronId);
         reservationHeap.insert(patronNode);
     }
 }
