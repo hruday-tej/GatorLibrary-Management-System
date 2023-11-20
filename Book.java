@@ -14,7 +14,7 @@ public class Book {
         this.bookName = bookName;
         this.authorName = authorName;
         this.availabilityStatus = availabilityStatus;
-        // this.borrowedBy = borrowedBy;
+        this.borrowedBy = -1;
         reservationHeap = new ReservationHeap(1000001);
     }
 

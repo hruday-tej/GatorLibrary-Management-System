@@ -1,0 +1,3 @@
+InsertBook(101, "Introduction to Algorithms", "Thomas H. Cormen", "Yes")
+InsertBook(48, "Data Structures and Algorithms", "Sartaj Sahni", "Yes")
+PrintBook(48)

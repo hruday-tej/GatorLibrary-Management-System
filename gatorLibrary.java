@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -8,6 +10,7 @@ class gatorLibrary {
     RedBlackTree libraryTree;
 
     public gatorLibrary() {
+        // System.out.println("ingingihgih");x
         this.libraryTree = new RedBlackTree();
     }
 
@@ -16,7 +19,7 @@ class gatorLibrary {
         System.out.println("Title = " + foundBook.bookName);
         System.out.println("Author = " + foundBook.authorName);
         System.out.println("Availability = " + foundBook.availabilityStatus);
-        String borrowed = foundBook.borrowedBy == 0 ? "None" : String.valueOf(foundBook.borrowedBy);
+        String borrowed = foundBook.borrowedBy == -1 ? "None" : String.valueOf(foundBook.borrowedBy);
         System.out.println("BorrowedBy = " + borrowed);
         System.out.println("Reservations = " + foundBook.getCurrentReservations().toString());
         System.out.println();
@@ -30,7 +33,8 @@ class gatorLibrary {
                 if (foundBook != null) {
                     printBookInfo(foundBook.book);
                 } else {
-                    System.out.println("Book Not found");
+                    System.out.println("Book " + printBookId + " not found in the library");
+                    System.out.println();
                 }
                 break;
             case "PrintBooks":
@@ -77,8 +81,8 @@ class gatorLibrary {
             case "ReturnBook":
                 int returnPatronId = Integer.parseInt(parameters[0]);
                 int returnBookId = Integer.parseInt(parameters[1]);
-
                 RedBlackTreeNode returnBook = libraryTree.searchBook(returnBookId);
+                if(returnBook == null)break;
                 if (returnBook.book.borrowedBy == returnPatronId) {
                     System.out.println("Book " + returnBookId + " Returned by Patron " + returnPatronId);
                     System.out.println();
@@ -87,6 +91,9 @@ class gatorLibrary {
                         returnBook.book.borrowedBy = nextReserved.patronId;
                         System.out.println("Book " + returnBookId + " Allotted to Patron " + nextReserved.patronId);
                         System.out.println();
+                    } else {
+                        returnBook.book.availabilityStatus = "Yes";
+                        returnBook.book.borrowedBy = -1;
                     }
                 } else {
                     System.out.println("something is fishy");
@@ -118,14 +125,34 @@ class gatorLibrary {
 
                 break;
 
+            case "ColorFlipCount":
+                System.out.println("Color Flip Count: " + libraryTree.colorFlipCount);
+                System.out.println();
+                break;
+
             case "DeleteBook":
                 int deletionBookID = Integer.parseInt(parameters[0]);
                 RedBlackTreeNode bookToBeDeleted = libraryTree.searchBook(deletionBookID);
-                libraryTree.deleteNode(deletionBookID);
-                System.out.println("Book " + deletionBookID +
-                        " is no longer available. Reservations made by Patrons "
-                        + bookToBeDeleted.book.getCurrentReservations().toString().replace("[", "").replace("]", "")
-                        + " have been cancelled !!");
+                libraryTree.deleteBook(deletionBookID);
+                String reservationsList = bookToBeDeleted.book.getCurrentReservations().toString().replace("[", "")
+                        .replace("]", "");
+
+                if (reservationsList.length() == 0) {
+                    System.out.println("Book " + deletionBookID +
+                            " is no longer available");
+                } else {
+                    if (bookToBeDeleted.book.getCurrentReservations().size() == 1) {
+                        System.out.println("Book " + deletionBookID +
+                                " is no longer available. Reservation made by Patron "
+                                + reservationsList
+                                + " have been cancelled!");
+                    } else
+                        System.out.println("Book " + deletionBookID +
+                                " is no longer available. Reservations made by Patrons "
+                                + reservationsList
+                                + " have been cancelled!");
+                }
+
                 System.out.println();
                 break;
 
@@ -135,6 +162,8 @@ class gatorLibrary {
     }
 
     public static void main(String[] args) {
+        PrintStream originalOut = System.out;
+
         try (BufferedReader br = new BufferedReader(new FileReader(args[0]))) {
             StringBuilder sb = new StringBuilder();
             String line;
@@ -144,16 +173,24 @@ class gatorLibrary {
                 sb.append("\n");
             }
 
+            FileOutputStream fileOutputStream = new FileOutputStream("output1.txt");
+
+            // Create a new PrintStream that writes to the file
+            PrintStream filePrintStream = new PrintStream(fileOutputStream);
+            System.setOut(filePrintStream);
+
             String[] methodInvocation = sb.toString().split("\n");
 
-            System.out.println(methodInvocation.length);
+            // System.out.println(methodInvocation.length);
             for (int i = 0; i < methodInvocation.length; i++) {
                 String method = methodInvocation[i];
                 String methodName = method.substring(0, method.indexOf("("));
                 String parametersString = method.substring(method.indexOf("(") + 1,
                         method.indexOf(")"));
-                String[] parameters = parametersString.split(", ");
-
+                String[] parameters = parametersString.split(",");
+                for (int k = 0; k < parameters.length; k++) {
+                    parameters[k] = parameters[k].trim();
+                }
                 gatorLibrary gn = new gatorLibrary();
                 // System.out.println("line number - > " + (i+1));
                 // System.out.println("Performing --> " + methodInvocation[i]);
@@ -165,6 +202,8 @@ class gatorLibrary {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            System.setOut(originalOut);
         }
     }
 }
