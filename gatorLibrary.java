@@ -164,7 +164,7 @@ class gatorLibrary {
     }
 
     public static void main(String[] args) {
-        PrintStream originalOut = System.out;
+        PrintStream printStreamOutput = System.out;
 
         try (BufferedReader br = new BufferedReader(new FileReader(args[0]))) {
             StringBuilder sb = new StringBuilder();
@@ -193,18 +193,18 @@ class gatorLibrary {
                 for (int k = 0; k < parameters.length; k++) {
                     parameters[k] = parameters[k].trim();
                 }
-                gatorLibrary gn = new gatorLibrary();
+                gatorLibrary gatorLibrary = new gatorLibrary();
                 // System.out.println("line number - > " + (i+1));
                 // System.out.println("Performing --> " + methodInvocation[i]);
                 // System.out.println();
-                gn.callAppropriateMethod(methodName, parameters);
+                gatorLibrary.callAppropriateMethod(methodName, parameters);
             }
             // System.out.println(methodInvocation);
 
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            System.setOut(originalOut);
+            System.setOut(printStreamOutput);
         }
     }
 }

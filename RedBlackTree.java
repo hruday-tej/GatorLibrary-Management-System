@@ -1,23 +1,24 @@
 import java.util.ArrayList;
 
-class Color{
+class Color {
   static final boolean RED = false;
   static final boolean BLACK = true;
 }
 
 public class RedBlackTree {
-    static RedBlackTreeNode root = null;
-    static int colorFlipCount = 0;
+  static RedBlackTreeNode root = null;
+  static int colorFlipCount = 0;
 
-    public void updateColorFlipCount(RedBlackTreeNode node, boolean newNodeColor){
-        if(node.color != newNodeColor && node.parent != null)colorFlipCount++;
-    }
+  public void updateColorFlipCount(RedBlackTreeNode node, boolean newNodeColor) {
+    if (node.color != newNodeColor && node.parent != null)
+      colorFlipCount++;
+  }
 
-    private void balanceBlackAfterInsertion(RedBlackTreeNode node) {
+  private void balanceBlackAfterInsertion(RedBlackTreeNode node) {
     RedBlackTreeNode parentNode = node.parent;
 
     if (parentNode == null) {
-      updateColorFlipCount(node, Color.BLACK); 
+      updateColorFlipCount(node, Color.BLACK);
       node.color = Color.BLACK;
       return;
     }
@@ -33,11 +34,20 @@ public class RedBlackTree {
       return;
     }
 
-    RedBlackTreeNode uncle = getUncle(parentNode);
+    RedBlackTreeNode uncle = parentNode;
+    RedBlackTreeNode tempGrandParent = parentNode.parent;
+    if (tempGrandParent.left == parentNode) {
+      uncle = tempGrandParent.right;
+    } else if (tempGrandParent.right == parentNode) {
+      uncle = tempGrandParent.left;
+    } else {
+      System.out.println("Invalid Parent - grandParent relationship");
+    }
+
     if (uncle != null && uncle.color == Color.RED) {
-        updateColorFlipCount(parentNode, Color.BLACK);
-        parentNode.color = Color.BLACK;
-        updateColorFlipCount(grandparent, Color.RED);
+      updateColorFlipCount(parentNode, Color.BLACK);
+      parentNode.color = Color.BLACK;
+      updateColorFlipCount(grandparent, Color.RED);
       grandparent.color = Color.RED;
       updateColorFlipCount(uncle, Color.BLACK);
       uncle.color = Color.BLACK;
@@ -46,11 +56,11 @@ public class RedBlackTree {
 
     else if (parentNode == grandparent.left) {
       if (node == parentNode.right) {
-        rotateLeft(parentNode);
+        performLLRotation(parentNode);
 
         parentNode = node;
       }
-      rotateRight(grandparent);
+      performRRRotation(grandparent);
       updateColorFlipCount(parentNode, Color.BLACK);
       parentNode.color = Color.BLACK;
       updateColorFlipCount(grandparent, Color.RED);
@@ -59,10 +69,10 @@ public class RedBlackTree {
 
     else {
       if (node == parentNode.left) {
-        rotateRight(parentNode);
+        performRRRotation(parentNode);
         parentNode = node;
       }
-      rotateLeft(grandparent);
+      performLLRotation(grandparent);
       updateColorFlipCount(parentNode, Color.BLACK);
       parentNode.color = Color.BLACK;
       updateColorFlipCount(grandparent, Color.RED);
@@ -70,19 +80,19 @@ public class RedBlackTree {
     }
   }
 
-    public RedBlackTreeNode searchBook(int key) {
-        RedBlackTreeNode traverser = root;
-        while (traverser != null) {
-          if (key == traverser.book.bookId) {
-            return traverser;
-          } else if (key < traverser.book.bookId) {
-            traverser = traverser.left;
-          } else {
-            traverser = traverser.right;
-          }
-        }
-        return null;
+  public RedBlackTreeNode searchBook(int key) {
+    RedBlackTreeNode traverser = root;
+    while (traverser != null) {
+      if (key == traverser.book.bookId) {
+        return traverser;
+      } else if (key < traverser.book.bookId) {
+        traverser = traverser.left;
+      } else {
+        traverser = traverser.right;
       }
+    }
+    return null;
+  }
 
   public void insertBook(Book bookToBeInserted) {
     RedBlackTreeNode traverser = root;
@@ -94,7 +104,7 @@ public class RedBlackTree {
       } else if (bookToBeInserted.bookId > traverser.book.bookId) {
         traverser = traverser.right;
       } else {
-        System.out.println("A Book with "+ bookToBeInserted.bookId + " already exists in Library!");
+        System.out.println("A Book with " + bookToBeInserted.bookId + " already exists in Library!");
       }
     }
 
@@ -110,18 +120,6 @@ public class RedBlackTree {
     newNode.parent = parentNode;
 
     balanceBlackAfterInsertion(newNode);
-  }
-
-  private RedBlackTreeNode getUncle(RedBlackTreeNode parent) {
-    RedBlackTreeNode grandparent = parent.parent;
-    if (grandparent.left == parent) {
-      return grandparent.right;
-    } else if (grandparent.right == parent) {
-      return grandparent.left;
-    } else {
-      System.out.println("Invalid Parent - grandParent relationship");
-      return null;
-    }
   }
 
   public void deleteBook(int bookIdToBeDeleted) {
@@ -152,25 +150,25 @@ public class RedBlackTree {
       fixRedBlackPropertiesAfterDelete(movedUpNode);
 
       if (movedUpNode.getClass() == LeafNode.class) {
-        replaceParentsChild(movedUpNode.parent, movedUpNode, null);
+        renewParentsChildren(movedUpNode.parent, movedUpNode, null);
       }
     }
   }
 
   private RedBlackTreeNode deleteNodeWithZeroOrOneChild(RedBlackTreeNode node) {
     if (node.left != null) {
-      replaceParentsChild(node.parent, node, node.left);
+      renewParentsChildren(node.parent, node, node.left);
       return node.left;
     }
 
     else if (node.right != null) {
-      replaceParentsChild(node.parent, node, node.right);
+      renewParentsChildren(node.parent, node, node.right);
       return node.right;
     }
 
     else {
       RedBlackTreeNode newChild = node.color == Color.BLACK ? new LeafNode() : null;
-      replaceParentsChild(node.parent, node, newChild);
+      renewParentsChildren(node.parent, node, newChild);
       return newChild;
     }
   }
@@ -189,55 +187,51 @@ public class RedBlackTree {
       return;
     }
 
-    RedBlackTreeNode sibling = getSibling(node);
+    RedBlackTreeNode sibling = returnNodeSibling(node);
     if (sibling.color == Color.RED) {
-      handleRedSibling(node, sibling);
-      sibling = getSibling(node);
+      // balancing Red Siblings
+      updateColorFlipCount(sibling, Color.BLACK);
+      sibling.color = Color.BLACK;
+      updateColorFlipCount(node.parent, Color.RED);
+      node.parent.color = Color.RED;
+      if (node == node.parent.left) {
+        performLLRotation(node.parent);
+      } else {
+        performRRRotation(node.parent);
+      }
+
+      sibling = returnNodeSibling(node);
     }
 
-    if (isBlack(sibling.left) && isBlack(sibling.right)) {
-        updateColorFlipCount(sibling, Color.RED);
+    if (checkIfNodeIsBlack(sibling.left) && checkIfNodeIsBlack(sibling.right)) {
+      updateColorFlipCount(sibling, Color.RED);
       sibling.color = Color.RED;
       if (node.parent.color == Color.RED) {
         updateColorFlipCount(node.parent, Color.BLACK);
         node.parent.color = Color.BLACK;
-      }
-      else {
+      } else {
         fixRedBlackPropertiesAfterDelete(node.parent);
       }
-    }
-    else {
-      handleBlackSiblingWithAtLeastOneRedChild(node, sibling);
-    }
-  }
-
-  private void handleRedSibling(RedBlackTreeNode node, RedBlackTreeNode sibling) {
-    updateColorFlipCount(sibling, Color.BLACK);
-    sibling.color = Color.BLACK;
-    updateColorFlipCount(node.parent, Color.RED);
-    node.parent.color = Color.RED;
-    if (node == node.parent.left) {
-      rotateLeft(node.parent);
     } else {
-      rotateRight(node.parent);
+      handleBlackSiblingWithAtLeastOneRedChild(node, sibling);
     }
   }
 
   private void handleBlackSiblingWithAtLeastOneRedChild(RedBlackTreeNode node, RedBlackTreeNode sibling) {
     boolean nodeIsLeftChild = node == node.parent.left;
-    if (nodeIsLeftChild && isBlack(sibling.right)) {
-        updateColorFlipCount(sibling.left, Color.BLACK);
+    if (nodeIsLeftChild && checkIfNodeIsBlack(sibling.right)) {
+      updateColorFlipCount(sibling.left, Color.BLACK);
       sibling.left.color = Color.BLACK;
       updateColorFlipCount(sibling, Color.RED);
       sibling.color = Color.RED;
-      rotateRight(sibling);
+      performRRRotation(sibling);
       sibling = node.parent.right;
-    } else if (!nodeIsLeftChild && isBlack(sibling.left)) {
-        updateColorFlipCount(sibling.right, Color.BLACK);
+    } else if (!nodeIsLeftChild && checkIfNodeIsBlack(sibling.left)) {
+      updateColorFlipCount(sibling.right, Color.BLACK);
       sibling.right.color = Color.BLACK;
       updateColorFlipCount(sibling, Color.RED);
       sibling.color = Color.RED;
-      rotateLeft(sibling);
+      performLLRotation(sibling);
       sibling = node.parent.left;
     }
 
@@ -246,32 +240,36 @@ public class RedBlackTree {
     updateColorFlipCount(node.parent, Color.BLACK);
     node.parent.color = Color.BLACK;
     if (nodeIsLeftChild) {
-        updateColorFlipCount(sibling.right, Color.BLACK);
+      updateColorFlipCount(sibling.right, Color.BLACK);
       sibling.right.color = Color.BLACK;
-      rotateLeft(node.parent);
+      performLLRotation(node.parent);
     } else {
-        updateColorFlipCount(sibling.left, Color.BLACK);
+      updateColorFlipCount(sibling.left, Color.BLACK);
       sibling.left.color = Color.BLACK;
-      rotateRight(node.parent);
+      performRRRotation(node.parent);
     }
   }
 
-  private RedBlackTreeNode getSibling(RedBlackTreeNode node) {
+  private RedBlackTreeNode returnNodeSibling(RedBlackTreeNode node) {
     RedBlackTreeNode parent = node.parent;
     if (node == parent.left) {
       return parent.right;
     } else if (node == parent.right) {
       return parent.left;
     } else {
-      throw new IllegalStateException("Parent is not a child of its grandparent");
+      System.out.println("invalid parent grandparent link");
+      return null;
     }
   }
 
-  private boolean isBlack(RedBlackTreeNode node) {
-    return node == null || node.color == Color.BLACK;
+  private boolean checkIfNodeIsBlack(RedBlackTreeNode node) {
+    if (node == null || node.color == Color.BLACK) {
+      return true;
+    }
+    return false;
   }
-  
-  private void rotateRight(RedBlackTreeNode node) {
+
+  private void performRRRotation(RedBlackTreeNode node) {
     RedBlackTreeNode parent = node.parent;
     RedBlackTreeNode leftChild = node.left;
 
@@ -283,8 +281,9 @@ public class RedBlackTree {
     leftChild.right = node;
     node.parent = leftChild;
 
-    replaceParentsChild(parent, node, leftChild);
+    renewParentsChildren(parent, node, leftChild);
   }
+
   public ArrayList<Book> closestBook(int targetBook) {
     Book floor = new Book(Integer.MIN_VALUE, null, null, null);
     Book ceiling = new Book(Integer.MAX_VALUE, null, null, null);
@@ -311,7 +310,8 @@ public class RedBlackTree {
     return ans;
 
   }
-  private void rotateLeft(RedBlackTreeNode node) {
+
+  private void performLLRotation(RedBlackTreeNode node) {
     RedBlackTreeNode parent = node.parent;
     RedBlackTreeNode rightChild = node.right;
 
@@ -319,14 +319,13 @@ public class RedBlackTree {
     if (rightChild.left != null) {
       rightChild.left.parent = node;
     }
-
     rightChild.left = node;
     node.parent = rightChild;
 
-    replaceParentsChild(parent, node, rightChild);
+    renewParentsChildren(parent, node, rightChild);
   }
 
-  private void replaceParentsChild(RedBlackTreeNode parent, RedBlackTreeNode oldChild, RedBlackTreeNode newChild) {
+  private void renewParentsChildren(RedBlackTreeNode parent, RedBlackTreeNode oldChild, RedBlackTreeNode newChild) {
     if (parent == null) {
       root = newChild;
     } else if (parent.left == oldChild) {
@@ -334,7 +333,7 @@ public class RedBlackTree {
     } else if (parent.right == oldChild) {
       parent.right = newChild;
     } else {
-      throw new IllegalStateException("Node is not a child of its parent");
+      System.out.println("Invalid Parent Child Relationship");
     }
 
     if (newChild != null) {
