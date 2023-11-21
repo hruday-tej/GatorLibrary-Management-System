@@ -10,7 +10,6 @@ class gatorLibrary {
     RedBlackTree libraryTree;
 
     public gatorLibrary() {
-        // System.out.println("ingingihgih");x
         this.libraryTree = new RedBlackTree();
     }
 
@@ -18,7 +17,8 @@ class gatorLibrary {
         System.out.println("BookID = " + foundBook.bookId);
         System.out.println("Title = " + foundBook.bookName);
         System.out.println("Author = " + foundBook.authorName);
-        System.out.println("Availability = " + foundBook.availabilityStatus);
+        String availabilityStringFilteterd = foundBook.availabilityStatus.matches("^\".*\"$") ? foundBook.availabilityStatus : "\"" + foundBook.availabilityStatus + "\"";
+        System.out.println("Availability = " + availabilityStringFilteterd);
         String borrowed = foundBook.borrowedBy == -1 ? "None" : String.valueOf(foundBook.borrowedBy);
         System.out.println("BorrowedBy = " + borrowed);
         System.out.println("Reservations = " + foundBook.getCurrentReservations().toString());
@@ -54,7 +54,7 @@ class gatorLibrary {
                 String authorName = parameters[2];
                 String availabilityStatus = parameters[3];
                 Book bookToBeInserted = new Book(insertBookId, bookName, authorName, availabilityStatus);
-                libraryTree.insertNode(bookToBeInserted);
+                libraryTree.insertBook(bookToBeInserted);
                 break;
 
             case "BorrowBook":
@@ -62,7 +62,7 @@ class gatorLibrary {
                 int borrowBookId = Integer.parseInt(parameters[1]);
                 int patronPriority = Integer.parseInt(parameters[2]);
                 RedBlackTreeNode bookToBorrow = libraryTree.searchBook(borrowBookId);
-
+                // System.out.println("BOOK TO BORROW -> "+bookToBorrow.book.bookId);
                 if (bookToBorrow != null) {
                     if (bookToBorrow.book.availabilityStatus.equals("No")) {
                         bookToBorrow.book.addPatronToWaitList(
@@ -133,10 +133,9 @@ class gatorLibrary {
             case "DeleteBook":
                 int deletionBookID = Integer.parseInt(parameters[0]);
                 RedBlackTreeNode bookToBeDeleted = libraryTree.searchBook(deletionBookID);
-                libraryTree.deleteBook(deletionBookID);
                 String reservationsList = bookToBeDeleted.book.getCurrentReservations().toString().replace("[", "")
                         .replace("]", "");
-
+                // System.out.println(bookToBeDeleted.book.getCurrentReservations() + "????????????????");
                 if (reservationsList.length() == 0) {
                     System.out.println("Book " + deletionBookID +
                             " is no longer available");
@@ -145,17 +144,20 @@ class gatorLibrary {
                         System.out.println("Book " + deletionBookID +
                                 " is no longer available. Reservation made by Patron "
                                 + reservationsList
-                                + " have been cancelled!");
+                                + " has been cancelled!");
                     } else
                         System.out.println("Book " + deletionBookID +
                                 " is no longer available. Reservations made by Patrons "
                                 + reservationsList
                                 + " have been cancelled!");
                 }
-
+                libraryTree.deleteBook(deletionBookID);
                 System.out.println();
                 break;
-
+            case "PutDebugger":
+                System.out.println(" --------------------- ");
+                System.out.println();
+                break;
             default:
                 break;
         }
@@ -173,7 +175,7 @@ class gatorLibrary {
                 sb.append("\n");
             }
 
-            FileOutputStream fileOutputStream = new FileOutputStream("output1.txt");
+            FileOutputStream fileOutputStream = new FileOutputStream(args[0].substring(0,args[0].indexOf(".txt")) + "_" + "output_file.txt");
 
             // Create a new PrintStream that writes to the file
             PrintStream filePrintStream = new PrintStream(fileOutputStream);
@@ -196,7 +198,6 @@ class gatorLibrary {
                 // System.out.println("Performing --> " + methodInvocation[i]);
                 // System.out.println();
                 gn.callAppropriateMethod(methodName, parameters);
-                // System.out.println("doneeeee");
             }
             // System.out.println(methodInvocation);
 

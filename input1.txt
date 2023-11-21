@@ -1,3 +1,5 @@
 InsertBook(4, "Book4", "Author1", "Yes")
+InsertBook(10, "1","qq","Yes")
+InsertBook(5, "2","qaaq","Yes")
 DeleteBook(4)
-PrintBook(4)
+PrintBook(10)
