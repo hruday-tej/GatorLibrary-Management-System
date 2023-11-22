@@ -13,6 +13,10 @@ class gatorLibrary {
         this.libraryTree = new RedBlackTree();
     }
 
+    /**
+     * this function is used to print the details of the given book
+     * @param book - the book object we want to print details about
+     */
     public void printBookInfo(Book foundBook) {
         System.out.println("BookID = " + foundBook.bookId);
         System.out.println("Title = " + foundBook.bookName);
@@ -25,6 +29,11 @@ class gatorLibrary {
         System.out.println();
     }
 
+    /**
+     * This function will call the respective functions in the redblacktree
+     * @param methodName - the method we want to call in the RBT
+     * @param parameters - the parameters required for the method.
+     */
     public void callAppropriateMethod(String methodName, String[] parameters) {
         switch (methodName) {
             case "PrintBook":

@@ -1,22 +1,22 @@
 public class ReservationHeap {
     // Class to implement Min Heap from scratch instead of using Priority Queue library
-    
     public ReservationHeapNode[] heapArray;
     public int size;
     public int maximumCapacity;
-
+    // Constructor to initialize all variables
     public ReservationHeap(int maximumCapacity){
         this.maximumCapacity = maximumCapacity;
         this.size = 0;
         heapArray = new ReservationHeapNode[this.maximumCapacity];
     }
-
+    // helper utility for swapping two elements in heap
     private void swap(int i, int j) {
         ReservationHeapNode temp = heapArray[i];
         heapArray[i] = heapArray[j];
         heapArray[j] = temp;
     }
 
+    // to perform bottom Up Heapficiation, when we insert a node, maintains heap Properties
     public void bottomUpHeapify() {
         int idx = size - 1;
         while (idx > 0) {
@@ -38,7 +38,7 @@ public class ReservationHeap {
         }
     }
     
-
+    // performs top down heapificiation after a removeMin() operation, maintains heap properties
     private void topDownHeapify() {
         int idx = 0;
         while (true) {
@@ -71,6 +71,7 @@ public class ReservationHeap {
         }
     }
 
+    // insert node at the bottom of the tree and then perform bottom up heapification
     public void insert(ReservationHeapNode node){
         if(size == maximumCapacity){
             System.out.println("Heap is Full");
@@ -82,6 +83,7 @@ public class ReservationHeap {
         bottomUpHeapify();
     }
 
+    // remove the root element and then perform a top down heapification
     public ReservationHeapNode removeMin(){
         if(size == 0){
             return new ReservationHeapNode(null, -1, -1);
